@@ -53,9 +53,9 @@ public class ServiceClient extends IntentService {
 
     public void getFile(ResultReceiver receiver, int syncResult, Bundle bundle) throws IOException, JSONException {
         HttpURLConnection httpConnection;
-        URL url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?query=BBVA+Compass&location=MY_LAT,MY_LONG&radius=10000&key=AIzaSyC0uPrTX4-wzXzRzThNrYYHhOO7C0GQTVc");
-        //https://maps.googleapis.com/maps/api/place/textsearch/json?query=BBVA+Compass&location=MY_LAT,MY_LONG&radius=10000&key=AIzaSyC0uPrTX4-wzXzRzThNrYYHhOO7C0GQTVc
+        //URL url = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json?query=BBVA+Compass&location=28.3289983,-81.5341406&radius=10000&key=AIzaSyAh35tMCZgkuREVrF8CHFm-X7RQ_q5uN2s");
 
+        URL url = new URL("");
         URLConnection connection = url.openConnection();
         connection.setConnectTimeout(1000);
         connection.setReadTimeout(1000);
@@ -71,6 +71,7 @@ public class ServiceClient extends IntentService {
                 syncResult = statusCode;
                 Log.d("ServiceClient", "jsonObject" + jsonObject);
                 bundle.putString("token", jsonObject.getString("next_page_token"));
+
 
                 break;
             case HttpURLConnection.HTTP_FORBIDDEN:

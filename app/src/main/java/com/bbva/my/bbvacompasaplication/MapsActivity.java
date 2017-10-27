@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -19,21 +18,41 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.bbva.my.bbvacompasaplication.model.BbvaModel;
+import com.bbva.my.bbvacompasaplication.model.Geometry;
+import com.bbva.my.bbvacompasaplication.model.Results;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.PlaceReport;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
+/**
+ * @author Sandeep Cherukuri on 10/27/17.
+ */
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, GenericReceiver.Receiver {
@@ -41,6 +60,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private GenericReceiver receiver;
     private ResponseReceiver responseReceiver;
+    private List<BbvaModel> list;
+    private Marker marker;
 
     Location mLocation;
     GoogleApiClient mGoogleApiClient;
@@ -101,18 +122,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        //BbvaModel bbvaModel = new BbvaModel();
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -124,14 +137,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         pinRequestService.putExtra(ServiceClient.PARAM_RECEIVER, receiver);
         startService(pinRequestService);
 
-        /*Intent syncIntent = new Intent(ServiceClient.ACTION_CONTENT_SYNC, null, this, ServiceClient.class);
-        syncIntent.putExtra(ServiceClient.EXTRA_SYNC_CALLED_FROM, from);*/
+        try {
+            JSONObject jsonObject = new JSONObject(loadJSONFromAsset());
+            JSONArray jsonArray = jsonObject.getJSONArray("results");
+            list = new ArrayList<>();
 
-       /* Intent msgIntent = new Intent(this, ServiceClient.class);
-        startService(msgIntent);*/
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject1 = jsonArray.getJSONObject(i);
 
-        /*Intent contactLookupIntent = ServiceClient.createIntent(this, receiver);
-        startService(contactLookupIntent);*/
+                JSONObject loc = jsonObject1.getJSONObject("geometry").getJSONObject("location");
+
+                BbvaModel bbvaModel = new BbvaModel();
+                bbvaModel.setLat(loc.getDouble("lat"));
+                bbvaModel.setLang(loc.getDouble("lng"));
+                bbvaModel.setName(jsonObject1.getString("name"));
+                bbvaModel.setAddress(jsonObject1.getString("formatted_address"));
+
+                if (list != null && list.size() > 0) {
+
+
+                    if (mMap != null) {
+                        mMap.clear();
+
+                        if (mLocation != null) {
+                            /*LatLng sydney = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
+
+                            if (marker == null) {
+                                marker = mMap.addMarker(new MarkerOptions().position(sydney).title("My Location"));
+                            } else {
+                                marker.setPosition(sydney);
+                            }
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
+
+                        }
+                        for (BbvaModel latLng1 : list) {
+                            LatLng latLng2 = new LatLng(latLng1.getLat(), latLng1.getLang());
+                            mMap.addMarker(new MarkerOptions().position(latLng2).title(latLng1.getName()));
+                        }
+                    }
+
+                    mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                        @Override
+                        public void onInfoWindowClick(Marker marker) {
+                            Toast.makeText(MapsActivity.this, "Info window clicked", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent(MapsActivity.this, SecondLevelActivity.class);
+                            LatLng latLng = marker.getPosition();
+                            intent.putExtra("title", marker.getTitle());
+                            //intent.putExtra("title", bbvaModel.getAddress());
+                            intent.putExtra("latitude", latLng.latitude);
+                            intent.putExtra("longitude", latLng.longitude);
+                            startActivity(intent);
+                        }
+                    });
+
+
+                }
+
+                list.add(bbvaModel);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -309,4 +377,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("MainActivity", "onReceive");
         }
     }
+
+    public String loadJSONFromAsset() {
+        String json = null;
+        try {
+            InputStream is = getAssets().open("test.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+
 }
