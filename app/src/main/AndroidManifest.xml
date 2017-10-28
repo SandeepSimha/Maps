@@ -31,7 +31,8 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
+            android:label="@string/title_activity_maps"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,8 +40,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".LocationDetailActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".MapListActivity"
+            android:screenOrientation="portrait" />
+
         <service
-            android:name=".ServiceClient"
+            android:name=".restclient.ServiceClient"
             android:enabled="true" />
     </application>
 
