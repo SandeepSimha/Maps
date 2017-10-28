@@ -41,11 +41,15 @@
         </activity>
 
         <activity
-            android:name=".SecondLevelActivity"
+            android:name=".LocationDetailActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".MapListActivity"
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".ServiceClient"
+            android:name=".restclient.ServiceClient"
             android:enabled="true" />
     </application>
 

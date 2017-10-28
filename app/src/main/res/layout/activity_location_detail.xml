@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tv_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="BBVA Compass" />
+
+    <TextView
+        android:id="@+id/tv_location_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="BBVA Compass" />
+
+    <TextView
+        android:id="@+id/tv_longitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        tools:text="BBVA Compass" />
+
+
+    <TextView
+        android:id="@+id/tv_latitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="BBVA Compass" />
+
+    <Button
+        android:id="@+id/directions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@color/blue_dark"
+        android:text="Get Directions From My Location"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF" />
+</LinearLayout>

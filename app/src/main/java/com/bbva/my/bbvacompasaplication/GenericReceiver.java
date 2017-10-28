@@ -5,14 +5,14 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 
 /**
- * Created by chers026 on 10/26/17.
+ * @author Sandeep Cherukuri on 10/26/17.
  */
 
 public class GenericReceiver extends ResultReceiver {
 
     private Receiver receiver;
 
-    public void setReceiver(Receiver receiver) {
+    void setReceiver(Receiver receiver) {
         this.receiver = receiver;
     }
 
